@@ -9,9 +9,28 @@ import chatRouter from './routes/chat';
 const app = express();
 const PORT = getPort();
 
+// CORS Configuration - Allow multiple origins
+const allowedOrigins = [
+  getFrontendUrl(),
+  'http://localhost:5173',
+  'http://localhost:3000',
+  // Add your Vercel deployment URL here when deployed
+  // 'https://your-app.vercel.app',
+];
+
 // Middleware
 app.use(cors({
-  origin: getFrontendUrl(),
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman, or curl)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin is in the allowed list or matches Vercel preview deployments
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
