@@ -26,8 +26,18 @@ export const documentAPI = {
   },
 
   getAll: async () => {
-    const response = await api.get('/documents');
-    return response.data;
+    try {
+      const response = await api.get('/documents');
+      // Normalize response to ensure callers always get an object with documents array
+      const data = response?.data;
+      if (!data) return { documents: [] };
+      if (Array.isArray(data)) return { documents: data };
+      return { documents: data.documents ?? [], ...(data.stats ? { stats: data.stats } : {}) };
+    } catch (error) {
+      // Re-throw so callers can handle and we keep consistent return shape
+      console.error('documentAPI.getAll error:', error);
+      throw error;
+    }
   },
 
   delete: async (id: string) => {
