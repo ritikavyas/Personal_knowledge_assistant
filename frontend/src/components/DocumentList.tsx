@@ -4,12 +4,12 @@ import { Document } from '../types';
 import { FileText, Upload, Trash2, Clock, Layers, Loader2 } from 'lucide-react';
 
 interface DocumentListProps {
-  documents?: Document[]; // make optional and default to [] to avoid runtime errors
+  documents: Document[];
   onDelete: (id: string) => void;
   onUploadClick: () => void;
 }
 
-const DocumentList: React.FC<DocumentListProps> = ({ documents = [], onDelete, onUploadClick }) => {
+const DocumentList: React.FC<DocumentListProps> = ({ documents, onDelete, onUploadClick }) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const handleDelete = async (id: string) => {

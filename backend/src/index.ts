@@ -2,7 +2,7 @@
 import './config/env';
 import express from 'express';
 import cors from 'cors';
-import { getPort, getFrontendUrl, getNodeEnv } from './config/env';
+import { getPort, getFrontendUrl } from './config/env';
 import documentsRouter from './routes/documents';
 import chatRouter from './routes/chat';
 
@@ -10,10 +10,8 @@ const app = express();
 const PORT = getPort();
 
 // Middleware
-// Allow flexible CORS in development to make local testing easier
-const nodeEnv = getNodeEnv();
 app.use(cors({
-  origin: nodeEnv === 'development' ? true : getFrontendUrl(),
+  origin: getFrontendUrl(),
   credentials: true,
 }));
 app.use(express.json());

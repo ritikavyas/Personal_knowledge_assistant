@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { getGeminiKey, useMockEmbeddings } from '../config/env';
+import { getGeminiKey } from '../config/env';
 
 let geminiClient: GoogleGenAI | null = null;
 
@@ -20,14 +20,6 @@ export class EmbeddingService {
    */
   static async generateEmbedding(text: string): Promise<number[]> {
     try {
-      // If running in mock mode, return deterministic pseudo-embeddings for local testing
-      if (useMockEmbeddings()) {
-        const seed = text.length;
-        // Create a small fixed-size embedding
-        const len = 16;
-        const emb: number[] = Array.from({ length: len }, (_, i) => ((seed + i * 13) % 100) / 100);
-        return emb;
-      }
       const result = await getGeminiClient().models.embedContent({
         model: this.EMBEDDING_MODEL,
         contents: text,
@@ -59,31 +51,22 @@ export class EmbeddingService {
         console.log(`[EmbeddingService] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(texts.length / BATCH_SIZE)} (${batch.length} texts)`);
         
         // Process each text in the batch with Promise.all
-        if (useMockEmbeddings()) {
-          // Generate simple deterministic embeddings for each text in the batch
-          const batchEmbeddings = batch.map(text => {
-            const seed = text.length;
-            const len = 16;
-            return Array.from({ length: len }, (_, i) => ((seed + i * 13) % 100) / 100);
-          });
-          allEmbeddings.push(...batchEmbeddings);
-        } else {
-          const batchPromises = batch.map(text => 
-            getGeminiClient().models.embedContent({
-              model: this.EMBEDDING_MODEL,
-              contents: text,
-            })
-          );
+        const batchPromises = batch.map(text => 
+          getGeminiClient().models.embedContent({
+            model: this.EMBEDDING_MODEL,
+            contents: text,
+          })
+        );
 
-          const results = await Promise.all(batchPromises);
-          const batchEmbeddings = results.map(result => {
-            if (!result.embeddings || !result.embeddings[0]?.values) {
-              throw new Error('Invalid embedding response from Gemini API');
-            }
-            return result.embeddings[0].values;
-          });
-          allEmbeddings.push(...batchEmbeddings);
-        }
+        const results = await Promise.all(batchPromises);
+        const batchEmbeddings = results.map(result => {
+          if (!result.embeddings || !result.embeddings[0]?.values) {
+            throw new Error('Invalid embedding response from Gemini API');
+          }
+          return result.embeddings[0].values;
+        });
+        
+        allEmbeddings.push(...batchEmbeddings);
       }
 
       return allEmbeddings;

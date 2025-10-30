@@ -55,13 +55,11 @@ function App() {
     try {
       // First try to load from server (server is source of truth)
       const data = await documentAPI.getAll();
-      // Normalize to an array in case backend or response shape differs
-      const docs = Array.isArray(data) ? data : data?.documents ?? [];
-      setDocuments(docs);
-
+      setDocuments(data.documents);
+      
       // Always sync localStorage with server
-      if (docs && docs.length > 0) {
-        localStorage.setItem('documentList', JSON.stringify(docs));
+      if (data.documents.length > 0) {
+        localStorage.setItem('documentList', JSON.stringify(data.documents));
       } else {
         // Server is empty, clear localStorage to prevent stale data
         localStorage.removeItem('documentList');
