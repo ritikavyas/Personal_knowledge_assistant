@@ -26,9 +26,11 @@ if (!envLoaded) {
 }
 
 // Validate required environment variables
-if (!process.env.GEMINI_API_KEY) {
+// Allow an explicit mock mode for local testing without Gemini keys
+const useMock = process.env.MOCK_EMBEDDINGS === 'true';
+if (!process.env.GEMINI_API_KEY && !useMock) {
   console.error('\n❌ ERROR: GEMINI_API_KEY is not set!');
-  console.error('Please add your Gemini API key to the .env file in the project root.');
+  console.error('Please add your Gemini API key to the .env file in the project root, or set MOCK_EMBEDDINGS=true for local testing without the API.');
   console.error('Get your free API key at: https://aistudio.google.com/apikey');
   console.error('Example: GEMINI_API_KEY=your-api-key-here\n');
   process.exit(1);
@@ -53,4 +55,8 @@ export const getFrontendUrl = (): string => {
 
 export const getNodeEnv = (): string => {
   return process.env.NODE_ENV || 'development';
+};
+
+export const useMockEmbeddings = (): boolean => {
+  return process.env.MOCK_EMBEDDINGS === 'true';
 };
