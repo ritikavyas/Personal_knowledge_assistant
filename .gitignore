@@ -41,6 +41,3 @@ backend/uploads/*
 
 # TypeScript
 *.tsbuildinfo
-
-# Ignore markdown files from being tracked so they remain local but are not pushed to remote
-*.md
