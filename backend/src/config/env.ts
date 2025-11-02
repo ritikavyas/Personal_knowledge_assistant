@@ -54,3 +54,17 @@ export const getFrontendUrl = (): string => {
 export const getNodeEnv = (): string => {
   return process.env.NODE_ENV || 'development';
 };
+
+// Get additional allowed origins from environment variable (comma-separated)
+export const getAllowedOrigins = (): string[] => {
+  const additionalOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : [];
+  
+  return [
+    getFrontendUrl(),
+    'http://localhost:5173',
+    'http://localhost:3000',
+    ...additionalOrigins,
+  ];
+};

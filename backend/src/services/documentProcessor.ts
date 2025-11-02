@@ -17,22 +17,15 @@ export class DocumentProcessor {
     filePath: string,
     originalName: string
   ): Promise<Document> {
-    console.log(`[DocumentProcessor] Extracting text from ${originalName}...`);
     const text = await this.extractText(filePath, originalName);
-    console.log(`[DocumentProcessor] Extracted ${text.length} characters`);
-    
-    console.log(`[DocumentProcessor] Chunking text...`);
     const chunks = await this.chunkText(text);
-    console.log(`[DocumentProcessor] Created ${chunks.length} chunks`);
     
     const documentId = uuidv4();
     const documentChunks: DocumentChunk[] = [];
 
     // Generate embeddings for all chunks
-    console.log(`[DocumentProcessor] Generating embeddings for ${chunks.length} chunks...`);
     const chunkTexts = chunks.map(c => c.text);
     const embeddings = await EmbeddingService.generateEmbeddings(chunkTexts);
-    console.log(`[DocumentProcessor] Generated ${embeddings.length} embeddings`);
 
     // Create document chunks with embeddings
     for (let i = 0; i < chunks.length; i++) {

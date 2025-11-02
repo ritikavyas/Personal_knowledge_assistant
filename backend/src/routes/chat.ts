@@ -5,25 +5,31 @@ import { RAGService } from '../services/ragService';
 
 const router = express.Router();
 
-/**
- * Send a chat message and get a response
- * POST /api/chat
- */
 router.post('/', async (req: Request, res: Response) => {
   try {
     const { message, conversationHistory = [] } = req.body as ChatRequest;
 
-    if (!message || message.trim().length === 0) {
-      return res.status(400).json({ error: 'Message is required' });
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ error: 'Message is required and must be a string' });
     }
 
-    // Process the query using RAG
+    if (message.trim().length === 0) {
+      return res.status(400).json({ error: 'Message cannot be empty' });
+    }
+
+    if (message.length > 5000) {
+      return res.status(400).json({ error: 'Message too long (max 5000 characters)' });
+    }
+
+    if (!Array.isArray(conversationHistory)) {
+      return res.status(400).json({ error: 'conversationHistory must be an array' });
+    }
+
     const { response, sources } = await RAGService.processQuery(
       message,
       conversationHistory
     );
 
-    // Create the assistant message
     const assistantMessage: ChatMessage = {
       id: uuidv4(),
       role: 'assistant',
