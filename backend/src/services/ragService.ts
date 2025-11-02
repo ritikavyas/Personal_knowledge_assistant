@@ -36,8 +36,6 @@ export class RAGService {
       };
     }
 
-    console.log(`[RAGService] Processing query: "${query}"`);
-    console.log(`[RAGService] Total chunks available: ${allChunks.length}`);
 
     // Preprocess query for better matching
     const processedQuery = this.preprocessQuery(query);
@@ -109,10 +107,6 @@ export class RAGService {
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, this.TOP_K_CHUNKS);
 
-    console.log(`[RAGService] Found ${relevantChunks.length} relevant chunks (threshold: ${this.SIMILARITY_THRESHOLD})`);
-    if (relevantChunks.length > 0) {
-      console.log(`[RAGService] Top similarity scores: ${relevantChunks.map(c => c.similarity.toFixed(3)).join(', ')}`);
-    }
 
     return relevantChunks;
   }

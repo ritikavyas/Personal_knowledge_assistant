@@ -1,256 +1,156 @@
-# Personal Knowledge Assistant (Simple RAG)
+# Personal Knowledge Assistant
 
-A full-stack TypeScript application that allows you to upload documents (PDF/TXT) and ask questions about them using Retrieval-Augmented Generation (RAG).
+A production-ready full-stack TypeScript application for document-based Q&A using Retrieval-Augmented Generation (RAG) with Google Gemini.
 
-## Features
+## 🚀 Features
 
-### Core Features
-- ✅ Upload 1-3 documents (PDF/TXT)
-- ✅ Extract and chunk text (500 tokens with overlap)
-- ✅ Store chunks in-memory with embeddings
-- ✅ Chat interface for asking questions
-- ✅ Retrieve relevant chunks and send to LLM with context
-- ✅ Show which document the answer came from
-- ✅ Basic conversation history
+- **Document Upload**: Upload PDF or TXT files (up to 3 documents)
+- **Intelligent Chunking**: Text extraction with overlap for context continuity
+- **Semantic Search**: Vector embeddings for accurate document retrieval
+- **AI Chat**: Ask questions about your documents with source citations
+- **Modern UI**: Beautiful React interface with Tailwind CSS and Framer Motion
 
-### Bonus Features
-- ✅ Chunk overlap strategy (100 tokens)
-- ✅ Highlight exact source text
-- ✅ Multiple document comparison
-- ✅ Delete documents
+## 📋 Prerequisites
 
-## Tech Stack
-
-### Frontend
-- **React** with TypeScript
-- **Vite** for fast development
-- **Tailwind CSS** for styling
-- **Axios** for API calls
-
-### Backend
-- **Node.js** with Express
-- **TypeScript** for type safety
-- **Multer** for file uploads
-- **pdf-parse** for PDF text extraction
-- **Gemini API** for embeddings and completions
-
-## Prerequisites
-
-- Node.js (v18 or higher)
+- Node.js v18 or higher
 - npm or yarn
-- Gemini API Key
+- Google Gemini API Key ([Get one here](https://aistudio.google.com/apikey))
 
-## Setup Instructions
+## 🏃 Quick Start
 
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd personal-knowledge-assistant
-```
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 npm run install:all
 ```
 
-This will install dependencies for both the backend and frontend.
-
-### 3. Configure Environment Variables
+### 2. Configure Environment
 
 Create a `.env` file in the root directory:
 
 ```bash
-cp .env.example .env
-```
-
-Edit the `.env` file and add your Gemini API key:
-
-```
-Gemini_API_KEY=your_actual_Gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 PORT=3001
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 4. Run the Application
-
-#### Option 1: Run Both Frontend and Backend Together
+### 3. Run Application
 
 ```bash
 npm run dev
 ```
 
-#### Option 2: Run Separately
+This starts:
+- **Backend API**: http://localhost:3001
+- **Frontend UI**: http://localhost:5173
 
-**Backend (Terminal 1):**
-```bash
-npm run dev:backend
-```
+## 📚 Documentation
 
-**Frontend (Terminal 2):**
-```bash
-npm run dev:frontend
-```
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Deploy to Vercel or Railway
+- **[Setup Guide](docs/LOCAL_SETUP.md)** - Detailed local setup instructions
+- **[Getting Started](docs/GETTING_STARTED.md)** - Quick reference guide
 
-### 5. Access the Application
+## 🛠️ Tech Stack
 
-Open your browser and navigate to:
-```
-http://localhost:5173
-```
+### Frontend
+- React 18 + TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- Framer Motion for animations
+- Axios for API calls
 
-The backend API will be running on:
-```
-http://localhost:3001
-```
+### Backend
+- Node.js + Express
+- TypeScript for type safety
+- Google Gemini API (embeddings & chat)
+- Multer for file uploads
+- pdf-parse for PDF extraction
 
-## Usage Guide
-
-### 1. Upload Documents
-- Click the "Upload Documents" button
-- Select 1-3 PDF or TXT files
-- Wait for the files to be processed and chunked
-
-### 2. Ask Questions
-- Type your question in the chat input
-- The system will retrieve relevant chunks from your documents
-- Receive an answer with source attribution
-- Click on sources to see the exact text used
-
-### 3. Manage Documents
-- View all uploaded documents in the sidebar
-- Delete documents you no longer need
-- Upload new documents as needed
-
-## Architecture
-
-### RAG Implementation
-
-1. **Document Processing**
-   - PDF/TXT files are uploaded and parsed
-   - Text is split into chunks (~500 tokens)
-   - Chunks have 100-token overlap for context continuity
-
-2. **Embedding Generation**
-   - Each chunk is converted to an embedding using Gemini's `text-embedding-004` model
-   - Embeddings are stored in-memory with metadata
-
-3. **Query Processing**
-   - User query is converted to an embedding
-   - Cosine similarity is used to find the most relevant chunks
-   - Top 3 chunks are retrieved
-
-4. **Response Generation**
-   - Retrieved chunks are sent to Gemini's GPT model as context
-   - The LLM generates a response based on the context
-   - Source documents and chunks are tracked and returned
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 personal-knowledge-assistant/
-├── backend/
+├── backend/           # Express API server
 │   ├── src/
-│   │   ├── index.ts              # Express server setup
-│   │   ├── routes/
-│   │   │   ├── documents.ts      # Document upload/delete routes
-│   │   │   └── chat.ts           # Chat endpoint
-│   │   ├── services/
-│   │   │   ├── documentProcessor.ts  # Text extraction & chunking
-│   │   │   ├── embeddingService.ts   # Embedding generation
-│   │   │   └── ragService.ts         # RAG logic
-│   │   ├── types/
-│   │   │   └── index.ts          # TypeScript types
-│   │   └── utils/
-│   │       └── storage.ts        # In-memory storage
-│   ├── uploads/                  # Uploaded files
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/
+│   │   ├── config/   # Environment configuration
+│   │   ├── routes/   # API routes
+│   │   ├── services/ # Business logic (RAG, embeddings)
+│   │   └── utils/    # Utilities (storage)
+├── frontend/          # React application
 │   ├── src/
-│   │   ├── App.tsx              # Main app component
-│   │   ├── components/
-│   │   │   ├── ChatInterface.tsx     # Chat UI
-│   │   │   ├── DocumentList.tsx      # Document management
-│   │   │   ├── UploadModal.tsx       # Upload UI
-│   │   │   └── MessageBubble.tsx     # Chat messages
-│   │   ├── services/
-│   │   │   └── api.ts           # API client
-│   │   └── types/
-│   │       └── index.ts         # TypeScript types
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vite.config.ts
-├── package.json
-├── .env.example
-└── README.md
+│   │   ├── components/ # UI components
+│   │   ├── services/  # API client
+│   │   └── types/       # TypeScript types
+├── api/               # Vercel serverless function
+├── docs/              # Documentation
+└── vercel.json        # Vercel configuration
 ```
 
-## API Endpoints
+## 🔌 API Endpoints
 
-### Documents
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Health check |
+| POST | `/api/documents/upload` | Upload documents |
+| GET | `/api/documents` | List all documents |
+| DELETE | `/api/documents/:id` | Delete a document |
+| POST | `/api/chat` | Send chat message |
 
-- `POST /api/documents/upload` - Upload documents
-- `GET /api/documents` - List all documents
-- `DELETE /api/documents/:id` - Delete a document
+## 🚢 Deployment
 
-### Chat
+### Vercel (Full-Stack)
+```bash
+vercel --prod
+```
 
-- `POST /api/chat` - Send a message and get a response with sources
+Set environment variables in Vercel dashboard:
+- `GEMINI_API_KEY`
+- `NODE_ENV=production`
+- `FRONTEND_URL` (your Vercel URL)
+- `ALLOWED_ORIGINS` (comma-separated URLs)
 
-## Testing
+See [Deployment Guide](docs/DEPLOYMENT.md) for detailed instructions.
 
-### Manual Testing Checklist
+### Railway (Backend Only)
+1. Connect GitHub repository
+2. Set environment variables
+3. Deploy
 
-1. **Document Upload**
-   - [ ] Upload PDF file
-   - [ ] Upload TXT file
-   - [ ] Upload multiple files
-   - [ ] Verify chunking
+## 🔧 Development
 
-2. **Chat Functionality**
-   - [ ] Ask questions about uploaded documents
-   - [ ] Verify source attribution
-   - [ ] Check conversation history
-   - [ ] Test with no documents uploaded
+```bash
+# Development mode
+npm run dev
 
-3. **Document Management**
-   - [ ] View document list
-   - [ ] Delete documents
-   - [ ] Verify deletion affects chat
+# Build for production
+npm run build
 
-## Limitations & Future Improvements
+# Start production server
+npm run start
 
-### Current Limitations
-- In-memory storage (data lost on server restart)
-- Max 3 documents at a time
-- Simple text chunking (no semantic chunking)
-- Basic embedding similarity search
+# Preview production build
+npm run preview
+```
 
-### Future Improvements
-- [ ] Persistent storage (database)
-- [ ] Vector database integration (Pinecone, Weaviate)
-- [ ] Advanced chunking strategies
-- [ ] Support for more file types (DOCX, PPTX)
-- [ ] Multi-user support with authentication
-- [ ] Conversation branching
-- [ ] Export chat history
-- [ ] Fine-tuning on specific domains
+## 🛡️ Production Features
 
-## Demo Video
+- ✅ Request logging with timestamps
+- ✅ Security headers (XSS protection, content-type options)
+- ✅ Production-safe error handling
+- ✅ Input validation and sanitization
+- ✅ CORS configuration for multiple origins
+- ✅ Request size limits (10MB)
+- ✅ Health check endpoint
 
-[Link to 5-minute demo video will be added here]
-
-## License
+## 📝 License
 
 MIT
 
-## Author
+## 👤 Author
 
 Ritika
 
 ---
 
-**Note:** This project is built as a demonstration of RAG implementation and full-stack development skills. Make sure to keep your Gemini API key secure and never commit it to version control.
+**Ready for production deployment!** 🎉

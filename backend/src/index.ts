@@ -2,56 +2,70 @@
 import "./config/env";
 import express from "express";
 import cors from "cors";
-import { getPort, getFrontendUrl } from "./config/env";
+import { getPort, getFrontendUrl, getNodeEnv, getAllowedOrigins } from "./config/env";
 import documentsRouter from "./routes/documents";
 import chatRouter from "./routes/chat";
 
 const app = express();
 const PORT = getPort();
 
-// CORS Configuration - Allow multiple origins
-const allowedOrigins = [
-  getFrontendUrl(),
-  "http://localhost:5173",
-  "http://localhost:3000",
-  // Add your Vercel deployment URL here when deployed
-  // 'https://github.com/ritikavyas/Personal_knowledge_assistant',
-];
+const allowedOrigins = getAllowedOrigins();
 
-// Middleware
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
+  });
+  next();
+});
+
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (getNodeEnv() === 'production') {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
+  next();
+});
+
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (like mobile apps, Postman, or curl)
       if (!origin) return callback(null, true);
 
-      // Check if the origin is in the allowed list or matches Vercel preview deployments
-      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      // Check if the origin is in the allowed list
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        // Allow Vercel preview deployments (any *.vercel.app domain)
+        if (origin.endsWith(".vercel.app")) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
       }
     },
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Routes
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
 app.use("/api/documents", documentsRouter);
 app.use("/api/chat", chatRouter);
 
-// Health check endpoint
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    message: "Personal Knowledge Assistant API is running",
+    message: "API is running",
     timestamp: new Date().toISOString(),
   });
 });
 
-// Error handling middleware
 app.use(
   (
     err: any,
@@ -59,26 +73,38 @@ app.use(
     res: express.Response,
     next: express.NextFunction
   ) => {
-    console.error("Unhandled error:", err);
-    res.status(500).json({
-      error: err.message || "Internal server error",
+    const timestamp = new Date().toISOString();
+    console.error(`[${timestamp}] Unhandled error:`, {
+      message: err.message,
+      stack: getNodeEnv() === 'development' ? err.stack : undefined,
+      path: req.path,
+      method: req.method,
+    });
+    
+    // Don't leak error details in production
+    const errorMessage = getNodeEnv() === 'production' 
+      ? 'Internal server error' 
+      : err.message || 'Internal server error';
+    
+    res.status(err.status || 500).json({
+      error: errorMessage,
+      ...(getNodeEnv() === 'development' && { stack: err.stack }),
     });
   }
 );
 
-// Start server
-const server = app.listen(PORT, () => {
-  console.log(`\n🚀 Server is running on http://localhost:${PORT}`);
-  console.log(`✅ Google Gemini API key loaded`);
-  console.log(`📝 API endpoints:`);
-  console.log(`   - POST   /api/documents/upload`);
-  console.log(`   - GET    /api/documents`);
-  console.log(`   - DELETE /api/documents/:id`);
-  console.log(`   - POST   /api/chat`);
-  console.log(`   - GET    /api/health\n`);
+app.use((req: express.Request, res: express.Response) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.path,
+  });
 });
 
-// Set timeout to 5 minutes for long-running operations (document processing)
-server.timeout = 300000; // 5 minutes
+const server = app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`API endpoints available`);
+});
+
+server.timeout = 300000;
 
 export default app;

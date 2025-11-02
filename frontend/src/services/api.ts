@@ -8,7 +8,26 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 300000, // 5 minutes for document processing
 });
+
+// Response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      // Server responded with error status
+      console.error('API Error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      // Request made but no response
+      console.error('Network Error:', error.request);
+    } else {
+      // Something else happened
+      console.error('Error:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const documentAPI = {
   upload: async (files: FileList) => {
