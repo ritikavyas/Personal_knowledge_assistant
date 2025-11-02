@@ -2,35 +2,50 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 
-// Try multiple paths to find the .env file
-const possiblePaths = [
-  path.resolve(__dirname, '../../.env'),           // From compiled dist/config
-  path.resolve(__dirname, '../../../.env'),        // From src/config when using ts-node
-  path.resolve(process.cwd(), '.env'),             // From current working directory
-  path.resolve(process.cwd(), '../.env'),          // From backend directory
-];
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
-let envLoaded = false;
-for (const envPath of possiblePaths) {
-  if (fs.existsSync(envPath)) {
-    console.log(`Loading environment from: ${envPath}`);
-    dotenv.config({ path: envPath });
-    envLoaded = true;
-    break;
+// Try multiple paths to find the .env file (only for local development)
+if (isDevelopment) {
+  const possiblePaths = [
+    path.resolve(__dirname, '../../.env'),           // From compiled dist/config
+    path.resolve(__dirname, '../../../.env'),        // From src/config when using ts-node
+    path.resolve(process.cwd(), '.env'),             // From current working directory
+    path.resolve(process.cwd(), '../.env'),          // From backend directory
+  ];
+
+  let envLoaded = false;
+  for (const envPath of possiblePaths) {
+    if (fs.existsSync(envPath)) {
+      console.log(`Loading environment from: ${envPath}`);
+      dotenv.config({ path: envPath });
+      envLoaded = true;
+      break;
+    }
   }
-}
 
-if (!envLoaded) {
-  console.warn('Warning: Could not find .env file in expected locations');
-  console.warn('Tried:', possiblePaths);
+  if (!envLoaded) {
+    console.warn('Warning: Could not find .env file in expected locations');
+    console.warn('Tried:', possiblePaths);
+  }
+} else {
+  // In production, load from process.env (Railway, Heroku, etc. set env vars directly)
+  // dotenv.config() without a path will try to load from .env, but won't fail if it doesn't exist
+  dotenv.config();
 }
 
 // Validate required environment variables
 if (!process.env.GEMINI_API_KEY) {
   console.error('\n❌ ERROR: GEMINI_API_KEY is not set!');
-  console.error('Please add your Gemini API key to the .env file in the project root.');
-  console.error('Get your free API key at: https://aistudio.google.com/apikey');
-  console.error('Example: GEMINI_API_KEY=your-api-key-here\n');
+  
+  if (isDevelopment) {
+    console.error('Please add your Gemini API key to the .env file in the project root.');
+    console.error('Example: GEMINI_API_KEY=your-api-key-here');
+  } else {
+    console.error('Please set the GEMINI_API_KEY environment variable in your deployment platform.');
+    console.error('For Railway: Go to your project → Variables tab → Add GEMINI_API_KEY');
+  }
+  
+  console.error('Get your free API key at: https://aistudio.google.com/apikey\n');
   process.exit(1);
 }
 

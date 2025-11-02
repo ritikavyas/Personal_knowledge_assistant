@@ -1,7 +1,20 @@
 import axios from 'axios';
 import { ChatMessage } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Determine API base URL
+// 1. Use VITE_API_URL if explicitly set (for Railway backend or custom deployments)
+// 2. Otherwise, use localhost for local development
+const getApiBaseUrl = (): string => {
+  if (import.meta.env.VITE_API_URL) {
+    // VITE_API_URL should point to Railway backend URL (e.g., https://your-app.railway.app/api)
+    return import.meta.env.VITE_API_URL;
+  }
+  
+  // Development: use localhost backend
+  return 'http://localhost:3001/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
