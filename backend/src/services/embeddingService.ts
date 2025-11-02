@@ -48,7 +48,6 @@ export class EmbeddingService {
       // Process in batches
       for (let i = 0; i < texts.length; i += BATCH_SIZE) {
         const batch = texts.slice(i, i + BATCH_SIZE);
-        console.log(`[EmbeddingService] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(texts.length / BATCH_SIZE)} (${batch.length} texts)`);
         
         // Process each text in the batch with Promise.all
         const batchPromises = batch.map(text => 

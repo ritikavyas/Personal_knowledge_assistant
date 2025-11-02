@@ -1,43 +1,68 @@
+
+!backend/uploads/.gitkeep
 # Dependencies
-node_modules/
+# Deployment
+# Environment variables
+# IDE
+# Logs
+# OS
+# Package manager locks (optional - keep for consistency)
+# Production Build Artifacts
+# Temporary files
+# Testing
+# TypeScript
+# Uploads (temporary files)
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
+*.bak
+*.cache
+*.log
+*.log.*
+*.spec.js
+*.swo
+*.swp
+*.temp
+*.test.js
+*.tmp
+*.tsbuildinfo
+*~
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+._*
+.env
+.env
+.env*.local
+.env.development.local
+.env.local
+.env.production
+.env.production.local
+.env.test.local
+.idea/
+.netlify
 .pnp
 .pnp.js
-
-# Testing
-coverage/
-
-# Production
+.sublime-*
+.tsbuildinfo
+.vercel
+.vscode/
+Desktop.ini
+Thumbs.db
+backend/dist/
+backend/uploads/*
 build/
+coverage/
 dist/
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
+ehthumbs.db
+frontend/dist/
+lerna-debug.log*
+logs/
+node_modules/
 npm-debug.log*
+pnpm-debug.log*
+temp/
+tmp/
 yarn-debug.log*
 yarn-error.log*
-lerna-debug.log*
-*.log
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Uploads
-backend/uploads/*
-!backend/uploads/.gitkeep
-
-# TypeScript
-*.tsbuildinfo

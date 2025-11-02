@@ -32,10 +32,6 @@ const upload = multer({
   },
 });
 
-/**
- * Upload documents
- * POST /api/documents/upload
- */
 router.post('/upload', upload.array('documents', 3), async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
@@ -44,39 +40,34 @@ router.post('/upload', upload.array('documents', 3), async (req: Request, res: R
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    // Check total document limit (3 max)
+    if (files.length > 3) {
+      return res.status(400).json({ error: 'Maximum 3 files allowed per upload' });
+    }
     const currentDocCount = storage.getAllDocuments().length;
     if (currentDocCount + files.length > 3) {
-      // Clean up uploaded files
       files.forEach(file => DocumentProcessor.deleteFile(file.path));
       return res.status(400).json({
         error: `Maximum 3 documents allowed. You currently have ${currentDocCount} document(s).`,
       });
     }
 
-    // Process each file
     const processedDocuments = [];
     for (const file of files) {
       try {
-        console.log(`Processing file: ${file.originalname} (${file.size} bytes)`);
         const document = await DocumentProcessor.processFile(
           file.path,
           file.originalname
         );
-        console.log(`Successfully processed ${file.originalname} into ${document.chunks.length} chunks`);
         storage.addDocument(document);
         processedDocuments.push({
           id: document.id,
           originalName: document.originalName,
           chunks: document.chunks.length,
         });
-        // Clean up the physical file after successful processing
         DocumentProcessor.deleteFile(file.path);
       } catch (error) {
         console.error(`Error processing file ${file.originalname}:`, error);
-        // Clean up the file
         DocumentProcessor.deleteFile(file.path);
-        // Continue processing other files or throw error
         return res.status(500).json({
           error: `Failed to process ${file.originalname}: ${error instanceof Error ? error.message : 'Unknown error'}`,
         });
@@ -95,10 +86,6 @@ router.post('/upload', upload.array('documents', 3), async (req: Request, res: R
   }
 });
 
-/**
- * Get all documents
- * GET /api/documents
- */
 router.get('/', (req: Request, res: Response) => {
   try {
     const documents = storage.getAllDocuments();
@@ -121,10 +108,6 @@ router.get('/', (req: Request, res: Response) => {
   }
 });
 
-/**
- * Delete a document
- * DELETE /api/documents/:id
- */
 router.delete('/:id', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -134,11 +117,8 @@ router.delete('/:id', (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Document not found' });
     }
 
-    // Delete the physical file
     const filePath = path.join(uploadDir, document.filename);
     DocumentProcessor.deleteFile(filePath);
-
-    // Delete from storage
     storage.deleteDocument(id);
 
     res.status(200).json({
