@@ -1,19 +1,18 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const backendUrl = process.env.VITE_API_URL || 'http://localhost:3001';
-
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: backendUrl,
+        // Point this to your Railway backend URL
+        target: 'https://Personal_knowledge_assistant.up.railway.app/api',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
+        secure: false
+      }
+    }
   },
   build: {
     outDir: 'dist',
@@ -23,9 +22,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          animations: ['framer-motion'],
-        },
-      },
-    },
-  },
+          animations: ['framer-motion']
+        }
+      }
+    }
+  }
 });
