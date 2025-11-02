@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-cream-50 text-gray-900;
+    @apply bg-gradient-to-br from-slate-50 via-amber-50/30 to-orange-50/20 text-gray-900;
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
       'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -21,38 +21,65 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 rounded-lg 
-           transition-colors shadow-sm hover:shadow-md;
+    @apply bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 
+           text-white font-semibold px-5 py-2.5 rounded-xl 
+           transition-all duration-200 shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/40
+           hover:scale-[1.02] active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg 
-           transition-colors shadow-sm;
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200 hover:bg-white hover:border-gray-300 
+           text-gray-700 font-medium px-5 py-2.5 rounded-xl 
+           transition-all duration-200 shadow-sm hover:shadow-md
+           hover:scale-[1.02] active:scale-[0.98];
   }
 
   .card {
-    @apply bg-white border border-gray-200 rounded-lg shadow-sm p-4;
+    @apply bg-white/80 backdrop-blur-sm border border-gray-200/80 rounded-2xl shadow-sm p-4
+           hover:shadow-lg hover:border-gray-300/80 transition-all duration-200;
   }
 
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none 
-           focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white text-gray-900;
+    @apply w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none 
+           focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 
+           bg-white/90 backdrop-blur-sm text-gray-900
+           transition-all duration-200;
+  }
+
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/80 shadow-xl;
+  }
+
+  .glass-dark {
+    @apply bg-gray-900/20 backdrop-blur-md border border-gray-800/50;
   }
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+  @apply bg-gray-100/50;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full hover:bg-gray-400;
+  @apply bg-gradient-to-b from-amber-400/40 to-orange-400/40 rounded-full hover:from-amber-500/60 hover:to-orange-500/60;
 }
 
 ::selection {
-  @apply bg-yellow-200 text-gray-900;
+  @apply bg-amber-200 text-gray-900;
+}
+
+/* Smooth animations */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, transparent 0%, rgba(251, 191, 36, 0.1) 50%, transparent 100%);
+  background-size: 1000px 100%;
 }

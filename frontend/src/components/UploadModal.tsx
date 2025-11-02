@@ -1,4 +1,5 @@
 import React, { useState, useRef, DragEvent } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, FileText, AlertCircle } from 'lucide-react';
 
 interface UploadModalProps {
@@ -87,43 +88,56 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) 
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-              <Upload className="w-5 h-5 text-yellow-600" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Upload Documents</h2>
-              <p className="text-sm text-gray-500">PDF or TXT files (max 3)</p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${
-            isDragging
-              ? 'border-yellow-500 bg-yellow-50'
-              : 'border-gray-300 bg-gray-50 hover:border-yellow-400 hover:bg-yellow-50/50'
-          }`}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4"
+          onClick={onClose}
         >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="glass rounded-3xl shadow-2xl max-w-2xl w-full p-8 border border-white/80"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                  <Upload className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Upload Documents</h2>
+                  <p className="text-sm text-gray-600 font-medium">PDF or TXT files (max 3)</p>
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 p-2.5 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+            </div>
+
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onClick={() => fileInputRef.current?.click()}
+              className={`border-3 border-dashed rounded-2xl p-16 text-center cursor-pointer transition-all duration-300 ${
+                isDragging
+                  ? 'border-amber-500 bg-gradient-to-br from-amber-50 to-orange-50 scale-105 shadow-lg'
+                  : 'border-gray-300 bg-gradient-to-br from-gray-50 to-white hover:border-amber-400 hover:from-amber-50/50 hover:to-orange-50/50'
+              }`}
+            >
           <input
             ref={fileInputRef}
             type="file"
@@ -132,79 +146,116 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose, onUpload }) 
             onChange={handleFileChange}
             className="hidden"
           />
-          
-          <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragging ? 'text-yellow-500' : 'text-gray-400'}`} />
-          
-          <p className="text-base font-medium text-gray-900 mb-1">
-            {isDragging ? 'Drop files here' : 'Drag & drop files here'}
-          </p>
-          <p className="text-sm text-gray-500">
-            or <span className="text-yellow-600 font-medium">click to browse</span>
-          </p>
-        </div>
-
-        {selectedFiles.length > 0 && (
-          <div className="mt-6 space-y-2">
-            <p className="text-sm font-medium text-gray-700 mb-3">
-              Selected files ({selectedFiles.length}/3)
-            </p>
-            {selectedFiles.map((file, index) => (
-              <div
-                key={file.name + index}
-                className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between"
+              
+              <motion.div
+                animate={{ 
+                  y: isDragging ? -10 : 0,
+                  scale: isDragging ? 1.1 : 1
+                }}
+                transition={{ duration: 0.2 }}
               >
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <FileText className="w-5 h-5 text-yellow-500 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {(file.size / 1024).toFixed(1)} KB
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => removeFile(index)}
-                  className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+                <Upload className={`w-16 h-16 mx-auto mb-6 transition-colors ${
+                  isDragging ? 'text-amber-500' : 'text-gray-400'
+                }`} />
+              </motion.div>
+              
+              <p className="text-lg font-bold text-gray-900 mb-2">
+                {isDragging ? 'Drop files here' : 'Drag & drop files here'}
+              </p>
+              <p className="text-sm text-gray-600">
+                or <span className="text-amber-600 font-bold">click to browse</span>
+              </p>
+            </motion.div>
 
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        )}
-
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            disabled={uploading}
-            className="btn-secondary disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleUpload}
-            disabled={uploading || selectedFiles.length === 0}
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[100px] justify-center"
-          >
-            {uploading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              'Upload'
+            {selectedFiles.length > 0 && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="mt-6 space-y-3"
+              >
+                <p className="text-sm font-bold text-gray-800 mb-3">
+                  Selected files ({selectedFiles.length}/3)
+                </p>
+                {selectedFiles.map((file, index) => (
+                  <motion.div
+                    key={file.name + index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="glass border border-gray-200/80 rounded-xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="p-2 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg">
+                        <FileText className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{file.name}</p>
+                        <p className="text-xs text-gray-600 font-medium">
+                          {(file.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => removeFile(index)}
+                      className="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </motion.button>
+                  </motion.div>
+                ))}
+              </motion.div>
             )}
-          </button>
-        </div>
-      </div>
-    </div>
+
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mt-4 p-4 bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-xl flex items-center gap-3 shadow-sm"
+              >
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <p className="text-sm text-red-800 font-medium">{error}</p>
+              </motion.div>
+            )}
+
+            <div className="flex justify-end gap-3 mt-8">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onClose}
+                disabled={uploading}
+                className="btn-secondary disabled:opacity-50"
+              >
+                Cancel
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleUpload}
+                disabled={uploading || selectedFiles.length === 0}
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[120px] justify-center"
+              >
+                {uploading ? (
+                  <>
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                    />
+                    Uploading...
+                  </>
+                ) : (
+                  'Upload'
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

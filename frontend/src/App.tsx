@@ -195,16 +195,17 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen bg-cream-50">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-amber-50/30 to-orange-50/20">
       <div className="flex-1 flex flex-col">
-        <header className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">K</span>
+        <header className="glass border-b border-white/60 px-8 py-5 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-amber-500/5 animate-shimmer" />
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/25 ring-2 ring-white/50">
+              <span className="text-white font-bold text-xl">K</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Knowledge Assistant</h1>
-              <p className="text-sm text-gray-500">AI-Powered Document Intelligence</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Knowledge Assistant</h1>
+              <p className="text-sm text-gray-600 font-medium">✨ AI-Powered Document Intelligence</p>
             </div>
           </div>
         </header>

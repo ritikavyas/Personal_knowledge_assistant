@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ChatMessage, Source } from '../types';
@@ -14,13 +15,20 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.role === 'user';
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}>
+    <motion.div 
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-6`}
+    >
       <div className={`max-w-[75%] ${isUser ? 'order-2' : 'order-1'}`}>
-        <div
-          className={`rounded-lg p-4 ${
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          className={`rounded-2xl p-5 shadow-lg border ${
             isUser
-              ? 'bg-yellow-500 text-white rounded-br-sm'
-              : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+              ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-br-sm border-amber-400/50 shadow-amber-500/20'
+              : 'glass text-gray-900 rounded-bl-sm border-gray-200/80 shadow-gray-200/50'
           }`}
         >
           {isUser ? (
@@ -58,55 +66,77 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
               </ReactMarkdown>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {!isUser && message.sources && message.sources.length > 0 && (
-          <div className="mt-3 space-y-2">
-            <p className="text-xs text-gray-500 font-medium px-2">Sources ({message.sources.length})</p>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-4 space-y-2"
+          >
+            <p className="text-xs text-gray-600 font-semibold px-2 flex items-center gap-2">
+              <span className="w-1 h-1 rounded-full bg-amber-500"></span>
+              Sources ({message.sources.length})
+            </p>
             
-            {message.sources.map((source: Source) => (
-              <div
+            {message.sources.map((source: Source, idx: number) => (
+              <motion.div
                 key={source.chunkId}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + idx * 0.1 }}
+                className="glass border border-gray-200/80 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
               >
-                <button
+                <motion.button
+                  whileHover={{ backgroundColor: 'rgba(251, 191, 36, 0.05)' }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setExpandedSource(expandedSource === source.chunkId ? null : source.chunkId)}
-                  className="w-full p-3 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 text-left flex justify-between items-center transition-colors"
                 >
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <FileText className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-                    <span className="text-sm font-medium text-gray-900 truncate">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="p-2 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg">
+                      <FileText className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900 truncate">
                       {source.documentName}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 text-xs font-medium">
+                  <div className="flex items-center gap-3">
+                    <span className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-xs font-bold shadow-sm">
                       {Math.round(source.similarity * 100)}%
                     </span>
-                    {expandedSource === source.chunkId ? (
-                      <ChevronUp className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    )}
+                    <motion.div
+                      animate={{ rotate: expandedSource === source.chunkId ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronDown className="w-4 h-4 text-gray-500" />
+                    </motion.div>
                   </div>
-                </button>
+                </motion.button>
 
                 {expandedSource === source.chunkId && (
-                  <div className="px-4 pb-4 pt-2 border-t border-gray-200">
-                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="px-4 pb-4 pt-2 border-t border-gray-200/50"
+                  >
+                    <div className="bg-gradient-to-br from-gray-50 to-amber-50/30 rounded-xl p-4 border border-gray-200/50 shadow-inner">
                       <p className="text-xs text-gray-700 leading-relaxed italic">
                         "{source.text.substring(0, 300)}
                         {source.text.length > 300 ? '...' : ''}"
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
