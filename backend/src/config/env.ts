@@ -31,6 +31,12 @@ if (isDevelopment) {
   // In production, load from process.env (Railway, Heroku, etc. set env vars directly)
   // dotenv.config() without a path will try to load from .env, but won't fail if it doesn't exist
   dotenv.config();
+  
+  // Debug: Log available environment variables (without sensitive values)
+  const envKeys = Object.keys(process.env).filter(key => 
+    key.includes('API') || key.includes('FRONTEND') || key.includes('NODE_ENV') || key.includes('PORT')
+  );
+  console.log('Available environment variables:', envKeys);
 }
 
 // Validate required environment variables
