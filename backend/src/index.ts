@@ -40,8 +40,8 @@ app.use(
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        // Allow Vercel preview deployments (any *.vercel.app domain)
-        if (origin.endsWith(".vercel.app")) {
+        // Allow Vercel and Netlify preview deployments (*.vercel.app, *.netlify.app)
+        if (origin.endsWith(".vercel.app") || origin.endsWith(".netlify.app")) {
           callback(null, true);
         } else {
           callback(new Error("Not allowed by CORS"));
